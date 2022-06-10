@@ -1,0 +1,8 @@
+
+push([x])
+sys(1)
+ret()
+
+x:
+str('Hello World')
+b(0)

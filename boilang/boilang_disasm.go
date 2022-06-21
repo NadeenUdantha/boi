@@ -1,3 +1,5 @@
+// Copyright (c) 2022 Nadeen Udantha <me@nadeen.lk>. All rights reserved.
+
 package boilang
 
 import (
@@ -7,7 +9,7 @@ import (
 	"strings"
 )
 
-func disassemble_instr(bb *BoiBuf) (string, bool) {
+func disassemble_instr(bb *BoiBuf) (string, error) {
 	defer func() { recover() }()
 	i := bb.ru8()
 	sb := strings.Builder{}
@@ -108,38 +110,31 @@ func disassemble_instr(bb *BoiBuf) (string, bool) {
 			dasm_av(true)
 			dasm_av(false)
 		} else {
-			e := fmt.Sprintf("# i=%d?", i)
-			//fmt.Println(e)
-			return e, true
+			return fmt.Sprintf("# i=%d?", i), fmt.Errorf("illegal instruction: %d 0x%x", i, i)
 		}
 	}
 	sb.WriteByte(')')
-	fmt.Printf("[dasm] %s\n", sb.String())
-	return sb.String(), false
+	//fmt.Printf("[dasm] %s\n", sb.String())
+	return sb.String(), nil
 }
 
-func Disassemble(x *bytes.Buffer) (string, int) {
+func Disassemble(x *bytes.Buffer) (code string, errs []error) {
 	buf := &BoiBuf{buf: x}
 	sb := &strings.Builder{}
-	nerrs := 0
 	for {
 		s, err := disassemble_instr(buf)
 		s = strings.TrimSpace(s)
-		if err {
-			nerrs += 1
+		if err != nil {
+			errs = append(errs, err)
 		}
 		if len(s) > 0 {
-			if err {
-				//sb.WriteString(s)
-				//sb.WriteByte('\n')
-			} else {
-				sb.WriteString(s)
-				sb.WriteByte('\n')
-			}
+			sb.WriteString(s)
+			sb.WriteByte('\n')
 		}
 		if x.Len() == 0 {
 			break
 		}
 	}
-	return sb.String(), nerrs
+	code = sb.String()
+	return
 }

@@ -1,3 +1,5 @@
+// Copyright (c) 2022 Nadeen Udantha <me@nadeen.lk>. All rights reserved.
+
 package boigp
 
 import (
@@ -46,7 +48,7 @@ func (bois VMRandomInstances) Update(_boi int) {
 		//vm.Pop()
 		z += 10
 	}
-	ni, no, errs := vm.Run(i)
+	ni, no, errs := vm.Run(i, false, false)
 	boi.ni = ni
 	boi.no = no
 	boi.ne = len(errs)

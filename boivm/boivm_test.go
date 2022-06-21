@@ -1,3 +1,5 @@
+// Copyright (c) 2022 Nadeen Udantha <me@nadeen.lk>. All rights reserved.
+
 package boivm
 
 import (
@@ -14,5 +16,5 @@ func Test(t *testing.T) {
 	assert.NoError(t, err)
 	copy(vm.mem.x, d)*/
 	copy(vm.Mem.X, boilang.Assemble("nop()").Bytes())
-	vm.Run(1)
+	vm.Run(1, false, false)
 }

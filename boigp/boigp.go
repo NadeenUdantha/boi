@@ -1,3 +1,5 @@
+// Copyright (c) 2022 Nadeen Udantha <me@nadeen.lk>. All rights reserved.
+
 package boigp
 
 import (
@@ -71,10 +73,27 @@ func (bgp *BoiGP) Run(bois BoiInterface) {
 			ai := nb - 1 - (rand.Int() % pnb)
 			bi := nb - 1 - (rand.Int() % pnb)
 			bois.Crossover(i, ai, bi)
-			if rand.Float32() < .2 {
-				bois.Mutate(i)
+		}
+		if bgp.mp {
+			var wg sync.WaitGroup
+			wg.Add(cnb)
+			for i := 0; i < cnb; i++ {
+				go func(i int) {
+					defer wg.Done()
+					if rand.Float32() < .2 {
+						bois.Mutate(i)
+					}
+					bois.Update(i)
+				}(i)
 			}
-			bois.Update(i)
+			wg.Wait()
+		} else {
+			for i := 0; i < cnb; i++ {
+				if rand.Float32() < .2 {
+					bois.Mutate(i)
+				}
+				bois.Update(i)
+			}
 		}
 		gen += 1
 	}

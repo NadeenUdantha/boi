@@ -1,3 +1,5 @@
+// Copyright (c) 2022 Nadeen Udantha <me@nadeen.lk>. All rights reserved.
+
 package boivm
 
 type BoiMem struct {

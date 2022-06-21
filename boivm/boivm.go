@@ -1,8 +1,13 @@
+// Copyright (c) 2022 Nadeen Udantha <me@nadeen.lk>. All rights reserved.
+
 package boivm
 
 import (
+	"boi/boilang"
 	. "boi/boilang"
+	"bytes"
 	"fmt"
+	"strings"
 )
 
 type BoiVM struct {
@@ -39,12 +44,17 @@ func (vm *BoiVM) Pop() uint16 {
 	return v
 }
 
-func (vm *BoiVM) Step() (uint8, error) {
+func (vm *BoiVM) Step(debug bool) (uint8, error) {
 	defer func() { recover() }()
 	m := vm.Mem
 	av := m.av
 	i := m.r8(vm.ip)
 	//fmt.Printf("ip=%#04x i=%#02x\n", vm.ip, i)
+	if debug {
+		code, _ := boilang.Disassemble(bytes.NewBuffer(vm.Mem.X[vm.ip:][:8]))
+		z := strings.Split(code, "\n")
+		fmt.Printf("ip=%#04x i=%#02x %s\n", vm.ip, i, z[0])
+	}
 	vm.ip += 1
 	if i == I_nop {
 	} else if i == I_mov {
@@ -139,15 +149,18 @@ func (vm *BoiVM) Step() (uint8, error) {
 	return i, nil
 }
 
-func (vm *BoiVM) Run(max_steps int) (nsteps, nops int, errs []error) {
+func (vm *BoiVM) Run(max_steps int, return_on_err bool, debug bool) (nsteps, nops int, errs []error) {
 	for nsteps < max_steps {
-		i, err := vm.Step()
+		i, err := vm.Step(debug)
 		nsteps += 1
 		if i > I_nop && i <= I_jz {
 			nops++
 		}
 		if err != nil {
 			errs = append(errs, err)
+			if return_on_err {
+				return
+			}
 		}
 	}
 	return
